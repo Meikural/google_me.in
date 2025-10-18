@@ -53,19 +53,19 @@ const data = {
     },
     {
       title: "Analytics",
-      url: "#",
+      url: "/analytics",
       icon: IconAnalyze,
     },
   ],
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: IconSettings,
     },
     {
       title: "Get Help",
-      url: "#",
+      url: "/help",
       icon: IconHelp,
     },
   ],

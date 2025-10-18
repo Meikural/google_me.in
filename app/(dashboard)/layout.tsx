@@ -10,7 +10,11 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 
-export default function BooksPage() {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   const { user, isLoaded } = useUser()
   const router = useRouter()
   const [isCheckingUser, setIsCheckingUser] = useState(true)
@@ -30,6 +34,7 @@ export default function BooksPage() {
         const data = await response.json()
 
         if (response.status === 404 && data.error === "User not found") {
+          // User hasn't set up username yet, redirect to setup
           router.push("/setup")
           return
         }
@@ -66,20 +71,7 @@ export default function BooksPage() {
         <SiteHeader />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
-              <div>
-                <h1 className="text-3xl font-bold mb-2">Books</h1>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Manage your reading list, favorite books, and recommendations
-                </p>
-              </div>
-
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-                <p className="text-gray-500 dark:text-gray-400">
-                  Books management coming soon...
-                </p>
-              </div>
-            </div>
+            {children}
           </div>
         </div>
       </SidebarInset>
