@@ -79,6 +79,9 @@ export function SiteHeader() {
                   Dashboard
                 </CommandItem>
                 <CommandItem onSelect={() => setOpen(false)}>
+                  Links
+                </CommandItem>
+                <CommandItem onSelect={() => setOpen(false)}>
                   Social Links
                 </CommandItem>
                 <CommandItem onSelect={() => setOpen(false)}>Books</CommandItem>

@@ -10,6 +10,7 @@ import {
   IconCertificate,
   IconDashboard,
   IconHelp,
+  IconLink,
   IconMovie,
   IconSettings,
   IconSocial,
@@ -35,6 +36,11 @@ const data = {
       icon: IconDashboard,
     },
     {
+      title: "Links",
+      url: "/links",
+      icon: IconLink,
+    },
+    {
       title: "Socials",
       url: "/social",
       icon: IconSocial,
@@ -45,7 +51,6 @@ const data = {
       url: "/movies",
       icon: IconMovie,
     },
-
     {
       title: "Education",
       url: "/education",

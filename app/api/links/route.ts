@@ -61,10 +61,25 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { url, title } = body;
+    const { url, title, category } = body;
 
+    // Validate required fields
     if (!url) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });
+    }
+
+    if (!title) {
+      return NextResponse.json({ error: "Title is required" }, { status: 400 });
+    }
+
+    if (!category) {
+      return NextResponse.json({ error: "Category is required" }, { status: 400 });
+    }
+
+    // Validate category
+    const validCategories = ["SOCIAL", "BOOKS", "MOVIES", "GAMES", "EDUCATION", "OTHERS"];
+    if (!validCategories.includes(category)) {
+      return NextResponse.json({ error: "Invalid category" }, { status: 400 });
     }
 
     // Validate URL format
@@ -87,7 +102,8 @@ export async function POST(request: NextRequest) {
     const link = await prisma.link.create({
       data: {
         url,
-        title: title || null,
+        title,
+        category,
         userId: user.id,
       },
     });

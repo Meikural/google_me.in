@@ -17,7 +17,26 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
-    const { url, title } = body;
+    const { url, title, category } = body;
+
+    // Validate required fields
+    if (!url) {
+      return NextResponse.json({ error: "URL is required" }, { status: 400 });
+    }
+
+    if (!title) {
+      return NextResponse.json({ error: "Title is required" }, { status: 400 });
+    }
+
+    if (!category) {
+      return NextResponse.json({ error: "Category is required" }, { status: 400 });
+    }
+
+    // Validate category
+    const validCategories = ["SOCIAL", "BOOKS", "MOVIES", "GAMES", "EDUCATION", "OTHERS"];
+    if (!validCategories.includes(category)) {
+      return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+    }
 
     // Find user by clerkId
     const user = await prisma.user.findUnique({
@@ -45,21 +64,20 @@ export async function PATCH(
       return NextResponse.json({ error: "Link has been deleted" }, { status: 410 });
     }
 
-    // Validate URL if provided
-    if (url) {
-      try {
-        new URL(url);
-      } catch {
-        return NextResponse.json({ error: "Invalid URL format" }, { status: 400 });
-      }
+    // Validate URL format
+    try {
+      new URL(url);
+    } catch {
+      return NextResponse.json({ error: "Invalid URL format" }, { status: 400 });
     }
 
     // Update link
     const link = await prisma.link.update({
       where: { id },
       data: {
-        ...(url && { url }),
-        ...(title !== undefined && { title: title || null }),
+        url,
+        title,
+        category,
       },
     });
 
