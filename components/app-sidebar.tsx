@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import {
   IconAnalyze,
@@ -9,7 +10,6 @@ import {
   IconCertificate,
   IconDashboard,
   IconHelp,
-  IconInnerShadowTop,
   IconMovie,
   IconSettings,
   IconSocial,
@@ -90,8 +90,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <Link href="/dashboard">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">google-me</span>
+                <Image
+                  src="/logo1.png"
+                  alt="Logo"
+                  width={120}
+                  height={40}
+                  className="object-contain"
+                />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
