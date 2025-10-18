@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
+import { invalidateUserCache } from "@/app/lib/redis";
 
 // PATCH update a link
 export async function PATCH(
@@ -62,6 +63,9 @@ export async function PATCH(
       },
     });
 
+    // Invalidate user cache
+    await invalidateUserCache(user.username, user.id);
+
     return NextResponse.json({ link }, { status: 200 });
   } catch (error) {
     console.error("Error updating link:", error);
@@ -116,6 +120,9 @@ export async function DELETE(
         deletedAt: new Date(),
       },
     });
+
+    // Invalidate user cache
+    await invalidateUserCache(user.username, user.id);
 
     return NextResponse.json({ message: "Link deleted successfully", link }, { status: 200 });
   } catch (error) {

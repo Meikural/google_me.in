@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
+import { invalidateUserCache, invalidateSearchCache } from "@/app/lib/redis";
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,6 +36,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Username already taken" }, { status: 409 });
     }
 
+    // Get old user data to invalidate old cache
+    const oldUser = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
     // Create or update user with username
     const user = await prisma.user.upsert({
       where: { clerkId: userId },
@@ -44,6 +50,17 @@ export async function POST(request: NextRequest) {
         username,
       },
     });
+
+    // Invalidate old username cache if it exists
+    if (oldUser && oldUser.username !== username) {
+      await invalidateUserCache(oldUser.username, oldUser.id);
+    }
+
+    // Invalidate new username cache
+    await invalidateUserCache(user.username, user.id);
+
+    // Invalidate all search caches since username changed
+    await invalidateSearchCache();
 
     return NextResponse.json({ user }, { status: 200 });
   } catch (error) {

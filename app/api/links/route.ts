@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
+import { redis, cacheKeys, CACHE_TTL, invalidateUserCache } from "@/app/lib/redis";
 
 // GET all links for logged-in user
 export async function GET() {
@@ -20,6 +21,15 @@ export async function GET() {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Check cache first
+    const cacheKey = cacheKeys.userLinks(user.id);
+    const cached = await redis.get(cacheKey);
+
+    if (cached) {
+      console.log("Cache hit for user links:", user.id);
+      return NextResponse.json({ links: cached }, { status: 200 });
+    }
+
     // Get all non-deleted links for user
     const links = await prisma.link.findMany({
       where: {
@@ -30,6 +40,9 @@ export async function GET() {
         createdAt: "desc",
       },
     });
+
+    // Cache the result
+    await redis.setex(cacheKey, CACHE_TTL.USER_LINKS, JSON.stringify(links));
 
     return NextResponse.json({ links }, { status: 200 });
   } catch (error) {
@@ -78,6 +91,9 @@ export async function POST(request: NextRequest) {
         userId: user.id,
       },
     });
+
+    // Invalidate user cache
+    await invalidateUserCache(user.username, user.id);
 
     return NextResponse.json({ link }, { status: 201 });
   } catch (error) {

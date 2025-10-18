@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
+import { redis, cacheKeys, CACHE_TTL } from "@/app/lib/redis";
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,6 +13,15 @@ export async function GET(request: NextRequest) {
 
     if (query.length < 2) {
       return NextResponse.json({ error: "Search query must be at least 2 characters" }, { status: 400 });
+    }
+
+    // Check cache first
+    const cacheKey = cacheKeys.search(query);
+    const cached = await redis.get(cacheKey);
+
+    if (cached) {
+      console.log("Cache hit for search:", query);
+      return NextResponse.json({ users: cached }, { status: 200 });
     }
 
     // Search for users with username containing the query (case-insensitive)
@@ -31,6 +41,9 @@ export async function GET(request: NextRequest) {
         username: "asc",
       },
     });
+
+    // Cache the result
+    await redis.setex(cacheKey, CACHE_TTL.SEARCH, JSON.stringify(users));
 
     return NextResponse.json({ users }, { status: 200 });
   } catch (error) {

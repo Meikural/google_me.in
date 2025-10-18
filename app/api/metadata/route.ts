@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { redis, cacheKeys, CACHE_TTL } from "@/app/lib/redis";
 
 interface Metadata {
   title?: string;
@@ -52,6 +53,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid URL format" }, { status: 400 });
     }
 
+    // Check cache first
+    const cacheKey = cacheKeys.metadata(url);
+    const cached = await redis.get(cacheKey);
+
+    if (cached) {
+      console.log("Cache hit for metadata:", url);
+      return NextResponse.json({ metadata: cached }, { status: 200 });
+    }
+
     // Fetch the webpage
     const response = await fetch(parsedUrl.toString(), {
       headers: {
@@ -69,6 +79,9 @@ export async function POST(request: NextRequest) {
 
     const html = await response.text();
     const metadata = extractMetaTags(html);
+
+    // Cache the result (24 hours)
+    await redis.setex(cacheKey, CACHE_TTL.METADATA, JSON.stringify(metadata));
 
     return NextResponse.json({ metadata }, { status: 200 });
   } catch (error) {
