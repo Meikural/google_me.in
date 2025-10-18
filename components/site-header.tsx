@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { IconSearch } from "@tabler/icons-react"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { SidebarTrigger } from "@/components/ui/sidebar"
+import { useEffect, useState } from "react";
+import { IconSearch } from "@tabler/icons-react";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Command,
   CommandEmpty,
@@ -19,21 +19,21 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 
 export function SiteHeader() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault()
-        setOpen((open) => !open)
+        e.preventDefault();
+        setOpen((open) => !open);
       }
-    }
-    document.addEventListener("keydown", down)
-    return () => document.removeEventListener("keydown", down)
-  }, [])
+    };
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
 
   return (
     <>
@@ -53,7 +53,7 @@ export function SiteHeader() {
               onClick={() => setOpen(true)}
             >
               <IconSearch className="mr-2 h-4 w-4" />
-              <span>Search...</span>
+              <span>Search User or link...</span>
               <kbd className="pointer-events-none absolute right-1.5 top-1 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
                 <span className="text-xs">⌘</span>K
               </kbd>
@@ -81,9 +81,7 @@ export function SiteHeader() {
                 <CommandItem onSelect={() => setOpen(false)}>
                   Social Links
                 </CommandItem>
-                <CommandItem onSelect={() => setOpen(false)}>
-                  Books
-                </CommandItem>
+                <CommandItem onSelect={() => setOpen(false)}>Books</CommandItem>
                 <CommandItem onSelect={() => setOpen(false)}>
                   Movies
                 </CommandItem>
@@ -96,14 +94,12 @@ export function SiteHeader() {
                 <CommandItem onSelect={() => setOpen(false)}>
                   Settings
                 </CommandItem>
-                <CommandItem onSelect={() => setOpen(false)}>
-                  Help
-                </CommandItem>
+                <CommandItem onSelect={() => setOpen(false)}>Help</CommandItem>
               </CommandGroup>
             </CommandList>
           </Command>
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }
