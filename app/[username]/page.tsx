@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 
-interface Link {
+interface UserLink {
   id: string;
   url: string;
   title: string | null;
@@ -14,7 +16,7 @@ interface User {
   id: string;
   username: string;
   createdAt: string;
-  links: Link[];
+  links: UserLink[];
 }
 
 interface Metadata {
@@ -24,7 +26,7 @@ interface Metadata {
   url?: string;
 }
 
-interface LinkWithMetadata extends Link {
+interface LinkWithMetadata extends UserLink {
   metadata?: Metadata;
   metadataLoading?: boolean;
 }
@@ -39,6 +41,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     fetchUserProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [username]);
 
   const fetchUserProfile = async () => {
@@ -53,7 +56,7 @@ export default function ProfilePage() {
       }
 
       setUser(data.user);
-      const linksWithMetadata = data.user.links.map((link: Link) => ({
+      const linksWithMetadata = data.user.links.map((link: UserLink) => ({
         ...link,
         metadataLoading: true,
       }));
@@ -61,7 +64,7 @@ export default function ProfilePage() {
       setIsLoading(false);
 
       // Fetch metadata for each link
-      data.user.links.forEach((link: Link) => {
+      data.user.links.forEach((link: UserLink) => {
         fetchMetadata(link);
       });
     } catch (err) {
@@ -71,7 +74,7 @@ export default function ProfilePage() {
     }
   };
 
-  const fetchMetadata = async (link: Link) => {
+  const fetchMetadata = async (link: UserLink) => {
     try {
       const response = await fetch("/api/metadata", {
         method: "POST",
@@ -123,12 +126,12 @@ export default function ProfilePage() {
           <p className="text-gray-600 dark:text-gray-400 mb-8">
             The user &quot;{username}&quot; does not exist.
           </p>
-          <a
+          <Link
             href="/"
             className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors inline-block"
           >
             Go Home
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -172,10 +175,13 @@ export default function ProfilePage() {
                   </div>
                 ) : link.metadata?.image ? (
                   <div className="flex gap-4">
-                    <img
+                    <Image
                       src={link.metadata.image}
                       alt={link.metadata.title || "Link preview"}
+                      width={128}
+                      height={128}
                       className="w-32 h-32 object-cover rounded-lg flex-shrink-0"
+                      unoptimized
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
                       }}

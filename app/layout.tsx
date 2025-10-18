@@ -1,4 +1,5 @@
 import { type Metadata } from "next";
+import Link from "next/link";
 import {
   ClerkProvider,
   SignInButton,
@@ -38,9 +39,9 @@ export default function RootLayout({
         >
           <header className="border-b border-gray-200 dark:border-gray-800">
             <div className="max-w-7xl mx-auto flex justify-between items-center p-4 gap-4 h-16">
-              <a href="/" className="text-xl font-bold">
+              <Link href="/" className="text-xl font-bold">
                 google-me
-              </a>
+              </Link>
               <nav className="flex items-center gap-4">
                 <SignedOut>
                   <SignInButton>
@@ -55,12 +56,12 @@ export default function RootLayout({
                   </SignUpButton>
                 </SignedOut>
                 <SignedIn>
-                  <a
+                  <Link
                     href="/dashboard"
                     className="font-medium text-sm sm:text-base px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
                     Dashboard
-                  </a>
+                  </Link>
                   <UserButton />
                 </SignedIn>
               </nav>

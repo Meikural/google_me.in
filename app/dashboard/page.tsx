@@ -34,6 +34,7 @@ export default function DashboardPage() {
     if (user) {
       fetchLinks();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const fetchLinks = async () => {
