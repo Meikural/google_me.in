@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser, SignInButton, SignUpButton } from "@clerk/nextjs";
 
 interface SearchResult {
   id: string;
@@ -9,11 +10,19 @@ interface SearchResult {
 }
 
 export default function Home() {
+  const { user, isLoaded } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+
+  // Redirect logged-in users to dashboard
+  useEffect(() => {
+    if (isLoaded && user) {
+      router.push("/dashboard");
+    }
+  }, [isLoaded, user, router]);
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
@@ -50,14 +59,35 @@ export default function Home() {
     router.push(`/${username}`);
   };
 
+  // Show loading while checking auth
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-8">
+    <div className="min-h-screen flex flex-col items-center justify-center p-8">
       <main className="w-full max-w-2xl">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Find People</h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <h1 className="text-4xl font-bold mb-4">google-me</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-8">
             Search for users and discover their links
           </p>
+          <div className="flex gap-4 justify-center mb-12">
+            <SignInButton mode="modal">
+              <button className="font-medium text-sm sm:text-base px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                Sign In
+              </button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm sm:text-base px-6 py-3 cursor-pointer transition-colors">
+                Sign Up
+              </button>
+            </SignUpButton>
+          </div>
         </div>
 
         <div className="relative">
