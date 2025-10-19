@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
 import { IconEdit, IconTrash, IconCheck, IconX } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,9 +22,16 @@ import {
 } from "@/components/ui/table";
 import { useLinks } from "@/contexts/LinksContext";
 
+interface Link {
+  id: string;
+  url: string;
+  title: string;
+  category: string;
+  createdAt: string;
+}
+
 export default function LinksPage() {
   const { user } = useUser();
-  const router = useRouter();
   const { links, isLoading, fetchLinks, updateLink, deleteLink } = useLinks();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editUrl, setEditUrl] = useState("");
@@ -40,7 +46,7 @@ export default function LinksPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const handleEditClick = (link: any) => {
+  const handleEditClick = (link: Link) => {
     setEditingId(link.id);
     setEditUrl(link.url);
     setEditTitle(link.title || "");
