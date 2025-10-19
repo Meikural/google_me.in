@@ -3,10 +3,16 @@
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { IconEdit, IconTrash, IconCheck, IconX } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -15,22 +21,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-interface Link {
-  id: string;
-  url: string;
-  title: string | null;
-  createdAt: string;
-}
+import { useLinks } from "@/contexts/LinksContext";
 
 export default function LinksPage() {
   const { user } = useUser();
   const router = useRouter();
-  const [links, setLinks] = useState<Link[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { links, isLoading, fetchLinks, updateLink, deleteLink } = useLinks();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editUrl, setEditUrl] = useState("");
   const [editTitle, setEditTitle] = useState("");
+  const [editCategory, setEditCategory] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -40,71 +40,33 @@ export default function LinksPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const fetchLinks = async () => {
-    try {
-      const response = await fetch("/api/links");
-      const data = await response.json();
-
-      if (response.ok) {
-        setLinks(data.links || []);
-      } else if (response.status === 404 && data.error === "User not found") {
-        router.push("/setup");
-        return;
-      }
-    } catch (err) {
-      console.error("Error fetching links:", err);
-      toast.error("Failed to fetch links");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleEditClick = (link: Link) => {
+  const handleEditClick = (link: any) => {
     setEditingId(link.id);
     setEditUrl(link.url);
     setEditTitle(link.title || "");
+    setEditCategory(link.category || "");
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
     setEditUrl("");
     setEditTitle("");
+    setEditCategory("");
   };
 
   const handleUpdateLink = async (id: string) => {
     setIsSubmitting(true);
 
-    try {
-      const response = await fetch(`/api/links/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          url: editUrl,
-          title: editTitle || null,
-        }),
-      });
+    const success = await updateLink(id, editUrl, editTitle, editCategory);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        toast.error(data.error || "Failed to update link");
-        setIsSubmitting(false);
-        return;
-      }
-
-      setLinks(links.map((link) => (link.id === id ? data.link : link)));
+    if (success) {
       setEditingId(null);
       setEditUrl("");
       setEditTitle("");
-      toast.success("Link updated successfully!");
-    } catch (err) {
-      console.error("Error updating link:", err);
-      toast.error("Failed to update link");
-    } finally {
-      setIsSubmitting(false);
+      setEditCategory("");
     }
+
+    setIsSubmitting(false);
   };
 
   const handleDeleteLink = async (id: string) => {
@@ -112,21 +74,7 @@ export default function LinksPage() {
       return;
     }
 
-    try {
-      const response = await fetch(`/api/links/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        setLinks(links.filter((link) => link.id !== id));
-        toast.success("Link deleted successfully!");
-      } else {
-        toast.error("Failed to delete link");
-      }
-    } catch (err) {
-      console.error("Error deleting link:", err);
-      toast.error("Failed to delete link");
-    }
+    await deleteLink(id);
   };
 
   if (isLoading) {
@@ -160,6 +108,7 @@ export default function LinksPage() {
               <TableRow>
                 <TableHead className="w-[200px]">Title</TableHead>
                 <TableHead>URL</TableHead>
+                <TableHead className="w-[150px]">Category</TableHead>
                 <TableHead className="text-right w-[100px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -173,7 +122,8 @@ export default function LinksPage() {
                           type="text"
                           value={editTitle}
                           onChange={(e) => setEditTitle(e.target.value)}
-                          placeholder="Title (optional)"
+                          placeholder="Title"
+                          required
                         />
                       </TableCell>
                       <TableCell>
@@ -182,7 +132,23 @@ export default function LinksPage() {
                           value={editUrl}
                           onChange={(e) => setEditUrl(e.target.value)}
                           placeholder="https://example.com"
+                          required
                         />
+                      </TableCell>
+                      <TableCell>
+                        <Select value={editCategory} onValueChange={setEditCategory} required>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="SOCIAL">Social</SelectItem>
+                            <SelectItem value="BOOKS">Books</SelectItem>
+                            <SelectItem value="MOVIES">Movies</SelectItem>
+                            <SelectItem value="GAMES">Games</SelectItem>
+                            <SelectItem value="EDUCATION">Education</SelectItem>
+                            <SelectItem value="OTHERS">Others</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-2 justify-end">
@@ -220,6 +186,11 @@ export default function LinksPage() {
                         >
                           {link.url}
                         </a>
+                      </TableCell>
+                      <TableCell>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          {link.category}
+                        </span>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-2 justify-end">

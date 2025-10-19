@@ -3,7 +3,7 @@
 import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
-import { toast } from "sonner";
+import { useLinks } from "@/contexts/LinksContext";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -33,9 +40,11 @@ export function NavMain({
     icon?: Icon;
   }[];
 }) {
+  const { addLink } = useLinks();
   const [isQuickCreateOpen, setIsQuickCreateOpen] = useState(false);
   const [newUrl, setNewUrl] = useState("");
   const [newTitle, setNewTitle] = useState("");
+  const [newCategory, setNewCategory] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -44,41 +53,28 @@ export function NavMain({
     setError("");
     setIsSubmitting(true);
 
-    try {
-      const response = await fetch("/api/links", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          url: newUrl,
-          title: newTitle || null,
-        }),
-      });
+    // Validate required fields
+    if (!newUrl || !newTitle || !newCategory) {
+      const errorMessage = "Please fill in all required fields";
+      setError(errorMessage);
+      setIsSubmitting(false);
+      return;
+    }
 
-      const data = await response.json();
+    // Use the context function to add the link
+    const success = await addLink(newUrl, newTitle, newCategory);
 
-      if (!response.ok) {
-        const errorMessage = data.error || "Failed to add link";
-        setError(errorMessage);
-        toast.error(errorMessage);
-        setIsSubmitting(false);
-        return;
-      }
-
+    if (success) {
       // Reset form and close modal on success
       setNewUrl("");
       setNewTitle("");
+      setNewCategory("");
       setIsQuickCreateOpen(false);
-      toast.success("Link added successfully!");
-    } catch (err) {
-      console.error("Error adding link:", err);
-      const errorMessage = "Failed to add link";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsSubmitting(false);
+    } else {
+      setError("Failed to add link");
     }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -140,14 +136,31 @@ export function NavMain({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="title">Custom Title (optional)</Label>
+                <Label htmlFor="title">Title *</Label>
                 <Input
                   type="text"
                   id="title"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="My awesome link"
+                  required
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="category">Category *</Label>
+                <Select value={newCategory} onValueChange={setNewCategory} required>
+                  <SelectTrigger id="category" className="w-full">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="SOCIAL">Social</SelectItem>
+                    <SelectItem value="BOOKS">Books</SelectItem>
+                    <SelectItem value="MOVIES">Movies</SelectItem>
+                    <SelectItem value="GAMES">Games</SelectItem>
+                    <SelectItem value="EDUCATION">Education</SelectItem>
+                    <SelectItem value="OTHERS">Others</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               {error && (
                 <div className="p-3 bg-destructive/15 text-destructive rounded-lg text-sm">
