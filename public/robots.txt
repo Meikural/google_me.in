@@ -1,0 +1,11 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin/dashboard pages
+Disallow: /dashboard
+Disallow: /setup
+Disallow: /api
+
+# Sitemap
+Sitemap: https://google-me.in/sitemap.xml

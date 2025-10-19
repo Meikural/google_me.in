@@ -1,0 +1,26 @@
+{
+  "name": "google-me - Discover & Share Your Interests",
+  "short_name": "google-me",
+  "description": "Connect with people who share your passions. Search, explore, and organize your favorite links in one place.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#a855f7",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/logos/logo1.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/logos/logo1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["social", "productivity", "lifestyle"],
+  "screenshots": []
+}
