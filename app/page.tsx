@@ -19,8 +19,8 @@ export default function Home() {
   // Show loading while checking auth
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-100 via-purple-200 to-purple-900">
-        <div className="animate-spin h-8 w-8 border-4 border-white border-t-transparent rounded-full"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     );
   }

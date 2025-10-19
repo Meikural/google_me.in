@@ -9,6 +9,7 @@ import {
   IconBook,
   IconCertificate,
   IconDashboard,
+  IconDeviceGamepad,
   IconHelp,
   IconLink,
   IconMovie,
@@ -46,6 +47,11 @@ const data = {
       icon: IconSocial,
     },
     { title: "Books", url: "/books", icon: IconBook },
+    {
+      title: "Games",
+      url: "/games",
+      icon: IconDeviceGamepad,
+    },
     {
       title: "Movies",
       url: "/movies",
@@ -96,7 +102,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <Link href="/dashboard">
                 <Image
-                  src="/logo1.png"
+                  src="/images/logos/logo1.png"
                   alt="Logo"
                   width={120}
                   height={40}
